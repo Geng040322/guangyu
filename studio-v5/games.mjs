@@ -1,5 +1,5 @@
 export function mountCatcher(host,{moods,onCatch,onDone,spriteMarkup,crystalMarkup,already=0}){
- let caught=already,stopped=false,raf,lastSpawn=0,x=.5,items=[],spawnCount=0;
+ let caught=Number.isFinite(already)?Math.max(0,Math.min(3,Math.floor(already))):0,stopped=false,raf,lastSpawn=0,x=.5,items=[],spawnCount=0;
  host.innerHTML=`<div class="sky-dust" aria-hidden="true"></div><div class="catch-meter" role="status">已接住 <b>${caught}</b> / 3</div><div class="catch-player" tabindex="0" role="group" aria-label="屿安的接住位置，用左右方向键移动">${spriteMarkup(1,'catch-avatar','屿安伸手接住晶体')}<div class="catch-bowl"></div></div><p class="catch-guide">左右拖动屿安，或直接点晶体</p>`;
  const player=host.querySelector('.catch-player'),meter=host.querySelector('.catch-meter b'),guide=host.querySelector('.catch-guide');
  const setX=v=>{x=Math.max(.12,Math.min(.88,v));player.style.left=`${x*100}%`;};
