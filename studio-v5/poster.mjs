@@ -1,4 +1,4 @@
-import {MOODS,PALETTES,cardMessage,wrapText} from './model.mjs';
+import {MOODS,NEEDS,PALETTES,cardMessage,wrapText} from './model.mjs';
 import {loadAtlas} from './characters.mjs';
 import {safeDecor} from './model.mjs';
 export function loadArt(){return loadAtlas();}
@@ -42,6 +42,6 @@ export async function renderPoster(canvas,card){
  c.fillStyle=p.muted;c.font='18px sans-serif';c.textAlign='left';c.fillText(card.date,76,1504);c.textAlign='right';c.fillText('屿安，陪你慢慢来。',1124,1504);
  for(const dot of decor.dots)star(c,dot.x*1200,dot.y*1600,13,dark?'#f6e2b4':p.accent);
  c.save();c.translate(1030,232);c.rotate(.1);c.strokeStyle=p.accent+'88';c.lineWidth=1.3;c.beginPath();c.arc(0,0,47,0,Math.PI*2);c.stroke();c.beginPath();c.arc(0,0,40,0,Math.PI*2);c.stroke();c.fillStyle=p.accent;c.textAlign='center';c.font='15px "Microsoft YaHei",sans-serif';c.fillText(['慢慢来','有被接住','心有晴光','给自己留白'][decor.stamp],0,5);c.restore();
- if(decor.stars.length){c.save();c.strokeStyle=p.accent+'99';c.lineWidth=1;const coords=[[110,340],[160,370],[210,345]];c.beginPath();coords.slice(0,decor.stars.length).forEach(([x,y],i)=>{i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();for(const [x,y] of coords.slice(0,decor.stars.length))star(c,x,y,5,p.accent);c.restore();}
+ if(decor.stars.length){c.save();c.strokeStyle=p.accent+'99';c.lineWidth=1;const positions=[[.17,.23],[.49,.15],[.80,.28],[.18,.70],[.52,.76],[.83,.69]],coords=decor.stars.map(id=>positions[NEEDS.findIndex(n=>n.id===id)]).map(([x,y])=>[85+x*190,340+y*65]);c.beginPath();coords.slice(0,decor.stars.length).forEach(([x,y],i)=>{i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();for(const [x,y] of coords.slice(0,decor.stars.length))star(c,x,y,5,p.accent);c.restore();}
  return canvas;
 }
