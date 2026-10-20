@@ -28,10 +28,17 @@ export function makeCard(state,date=new Date()){
  const moods=[...new Set(state.moods??[])].filter(id=>MOODS.some(m=>m.id===id)).slice(0,3);
  const need=NEEDS.find(n=>n.id===state.need);
  if(!moods.length||!need)throw new Error('请先选择此刻的情绪和需要');
- return {id:globalThis.crypto?.randomUUID?.()??`${Date.now()}-${Math.random().toString(36).slice(2)}`,moods,need:need.label,needId:need.id,ability:need.ability,message:need.message,action:need.action,body:String(state.body??'').slice(0,30),weight:Math.min(5,Math.max(1,Number(state.weight)||3)),note:Array.from(String(state.note??'').trim()).slice(0,48).join(''),quote:Math.min(2,Math.max(0,Math.floor(Number(state.quote)||0))),palette:PALETTES[state.palette]?state.palette:'gold',layout:state.layout===1?1:0,seed:Math.floor(Number(state.seed)||Math.random()*10000),date:new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(date).replaceAll('/','.')};
+ return {id:globalThis.crypto?.randomUUID?.()??`${Date.now()}-${Math.random().toString(36).slice(2)}`,moods,need:need.label,needId:need.id,ability:need.ability,message:need.message,action:need.action,body:String(state.body??'').slice(0,30),weight:Math.min(5,Math.max(1,Number(state.weight)||3)),note:Array.from(String(state.note??'').replace(/[\r\n]+/g,' ').trim()).slice(0,48).join(''),quote:Math.min(2,Math.max(0,Math.floor(Number(state.quote)||0))),palette:Object.hasOwn(PALETTES,state.palette)?state.palette:'gold',layout:state.layout===1?1:0,seed:Math.floor(Number(state.seed)||Math.random()*10000),date:new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(date).replaceAll('/','.')};
 }
 export function cardMessage(card){return card.quote===1?'每一种情绪，\n都值得一个安心的落点。':card.quote===2?'今天的我，\n已经很努力了。':card.message;}
-function validCard(c){return c&&typeof c.id==='string'&&Array.isArray(c.moods)&&c.moods.length>0&&c.moods.length<=3&&c.moods.every(id=>MOODS.some(m=>m.id===id))&&NEEDS.some(n=>n.id===c.needId)&&typeof c.note==='string'&&Array.from(c.note).length<=48&&typeof c.date==='string'&&/^\d{4}\.\d{2}\.\d{2}$/.test(c.date)&&PALETTES[c.palette]&&(c.layout===0||c.layout===1)&&typeof c.message==='string'&&typeof c.need==='string'&&typeof c.ability==='string';}
+function validCard(c){
+ if(!c||typeof c.id!=='string'||c.id.length>80||!Array.isArray(c.moods)||!c.moods.length||c.moods.length>3||!c.moods.every(id=>MOODS.some(m=>m.id===id)))return false;
+ const need=NEEDS.find(n=>n.id===c.needId);
+ return !!need && typeof c.note==='string' && Array.from(c.note).length<=48 && typeof c.date==='string' && /^\d{4}\.\d{2}\.\d{2}$/.test(c.date)
+  && Object.hasOwn(PALETTES,c.palette) && (c.layout===0||c.layout===1) && Number.isInteger(c.weight) && c.weight>=1 && c.weight<=5
+  && Number.isInteger(c.seed) && c.seed>=0 && c.seed<=1000000 && Number.isInteger(c.quote) && c.quote>=0 && c.quote<=2
+  && typeof c.body==='string' && c.body.length<=30 && c.message===need.message && c.action===need.action && c.need===need.label && c.ability===need.ability;
+}
 export function readHistory(storage){try{const list=JSON.parse(storage.getItem(HISTORY_KEY)||'[]');return Array.isArray(list)?list.filter(validCard).slice(0,8):[];}catch{return [];}}
 export function saveHistory(storage,cards){try{storage.setItem(HISTORY_KEY,JSON.stringify(cards.filter(validCard).slice(0,8)));return true;}catch{return false;}}
 export function wrapText(text,measure,maxWidth){const lines=[];for(const paragraph of String(text).split('\n')){let line='';for(const ch of Array.from(paragraph)){if(line&&measure(line+ch)>maxWidth){lines.push(line);line=ch;}else line+=ch;}lines.push(line);}return lines;}
