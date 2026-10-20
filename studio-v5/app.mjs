@@ -2,7 +2,7 @@ import {MOODS,NEEDS,PALETTES,toggleMood,makeCard,readHistory,saveHistory,cardMes
 import {renderPoster,loadArt} from './poster.mjs';
 import {yuan} from './art.mjs';
 import {prepareAtlas} from './characters.mjs';
-import {mountCatcher,mountUntangle,mountScratch} from './games.mjs';
+import {mountCatcher,mountUntangle,mountScratch} from './games.mjs?rev=2';
 
 const root=document.querySelector('#app');
 const initial=()=>({stage:0,moods:[],weight:3,body:'',need:'',note:'',palette:'gold',layout:0,quote:0,seed:Math.floor(Math.random()*10000),caught:0,untangled:0,revealMode:'knot',stars:[],pose:2,stamp:0,dots:[]});
