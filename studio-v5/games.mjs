@@ -11,11 +11,11 @@ export function mountCatcher(host,{moods,onCatch,onDone,spriteMarkup,crystalMark
   player.classList.remove('catch-pop');void player.offsetWidth;player.classList.add('catch-pop');onCatch(Math.min(3,caught));
   if(caught>=3){stopped=true;items.forEach(i=>i.el.remove());player.innerHTML=spriteMarkup(4,'catch-avatar','屿安开心地举手庆祝')+'<div class="catch-bowl"></div>';guide.textContent='接住了。先在这里歇一会儿。';host.classList.add('game-complete');onDone();}
  }
- function spawn(now){const m=moods[spawnCount++%moods.length],el=document.createElement('button');el.type='button';el.className='falling-crystal';el.setAttribute('aria-label',`接住${m.short}晶体`);el.innerHTML=crystalMarkup(m.color,m.shape)+`<span>${m.short}</span>`;const item={el,x:.16+Math.random()*.68,start:now,duration:6500+Math.random()*2000,done:false};el.onclick=()=>{interacted=true;capture(item);};host.append(el);items.push(item);}
+ function spawn(now){const m=moods[spawnCount++%moods.length],el=document.createElement('button');el.type='button';el.className='falling-crystal';el.setAttribute('aria-label',`接住${m.short}晶体`);el.innerHTML=crystalMarkup(m.color,m.shape)+`<span>${m.short}</span>`;const item={el,x:.16+Math.random()*.68,start:now,duration:6500+Math.random()*2000,done:false};el.onclick=()=>{interacted=true;capture(item);};el.onpointerenter=()=>{if(!item.done)item.pausedAt=performance.now();};el.onpointerleave=()=>{if(item.pausedAt){item.start+=performance.now()-item.pausedAt;item.pausedAt=0;}};el.onpointerdown=e=>{e.preventDefault();e.stopPropagation();interacted=true;capture(item);};host.append(el);items.push(item);}
  function frame(now){
   if(stopped)return;const r=host.getBoundingClientRect();
   if(!lastSpawn||now-lastSpawn>1450){spawn(now);lastSpawn=now;}
-  for(const item of items){if(item.done)continue;const t=(now-item.start)/item.duration;item.el.style.left=`${item.x*100}%`;item.el.style.top=`${-40+t*(r.height+55)}px`;
+  for(const item of items){if(item.done)continue;const t=((item.pausedAt||now)-item.start)/item.duration;item.el.style.left=`${item.x*100}%`;item.el.style.top=`${-40+t*(r.height+55)}px`;
    if(interacted&&t>.69&&t<.9&&Math.abs(item.x-x)<Math.max(.1,50/r.width))capture(item);
    else if(t>1){item.done=true;item.el.remove();}
   }
