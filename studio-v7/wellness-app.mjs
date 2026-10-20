@@ -2,7 +2,7 @@ import {COLORS,THEMES,OBJECTS,cleanCreation,describeCreation,makeReply,readCreat
 import {paintWorld,wrapText} from './creative-canvas.mjs';
 import {prepareAtlas,loadAtlas} from './characters.mjs';
 import {mountArcade} from './arcade.mjs';
-import {mountWellness as mountCompanion} from './wellness.mjs';
+import {mountWellness as mountCompanion} from './wellness.mjs?rev=free2';
 import {mountNurture} from './nurture.mjs';
 const root=document.querySelector('#app');let storage;try{storage=localStorage;}catch{}let collection=readCreations(storage),creation=cleanCreation(),stage=0,view='care',brush='light',color='ice',size=.014,cleanup=()=>{},frame=0;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
