@@ -39,8 +39,16 @@ function validCard(c){
   && Number.isInteger(c.seed) && c.seed>=0 && c.seed<=1000000 && Number.isInteger(c.quote) && c.quote>=0 && c.quote<=2
   && typeof c.body==='string' && c.body.length<=30 && c.message===need.message && c.action===need.action && c.need===need.label && c.ability===need.ability;
 }
-export function readHistory(storage){try{const list=JSON.parse(storage.getItem(HISTORY_KEY)||'[]');return Array.isArray(list)?list.filter(validCard).slice(0,8):[];}catch{return [];}}
-export function saveHistory(storage,cards){try{storage.setItem(HISTORY_KEY,JSON.stringify(cards.filter(validCard).slice(0,8)));return true;}catch{return false;}}
+function normalizeSavedCard(card){
+ const keys=['id','moods','need','needId','ability','message','action','body','weight','note','quote','palette','layout','seed','date'];
+ return {...Object.fromEntries(keys.map(key=>[key,card[key]])),...safeDecor(card)};
+}
+export function readHistory(storage){try{const list=JSON.parse(storage.getItem(HISTORY_KEY)||'[]');return Array.isArray(list)?list.filter(validCard).slice(0,8).map(normalizeSavedCard):[];}catch{return [];}}
+export function saveHistory(storage,cards){try{storage.setItem(HISTORY_KEY,JSON.stringify(cards.filter(validCard).slice(0,8).map(normalizeSavedCard)));return true;}catch{return false;}}
 export function wrapText(text,measure,maxWidth){const lines=[];for(const paragraph of String(text).split('\n')){let line='';for(const ch of Array.from(paragraph)){if(line&&measure(line+ch)>maxWidth){lines.push(line);line=ch;}else line+=ch;}lines.push(line);}return lines;}
 export function toggleStars(selected,id){if(!NEEDS.some(n=>n.id===id))return selected;return selected.includes(id)?selected.filter(v=>v!==id):selected.length<3?[...selected,id]:selected;}
 export function safeDecor(state){return {pose:Number.isInteger(state.pose)&&state.pose>=0&&state.pose<6?state.pose:2,stamp:Number.isInteger(state.stamp)&&state.stamp>=0&&state.stamp<4?state.stamp:0,dots:(Array.isArray(state.dots)?state.dots:[]).filter(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)).slice(0,12).map(p=>({x:Math.max(.06,Math.min(.94,p.x)),y:Math.max(.12,Math.min(.89,p.y))})),stars:(Array.isArray(state.stars)?state.stars:[]).filter(id=>NEEDS.some(n=>n.id===id)).slice(0,3)};}
+export function restoreChoices(card){
+ if(!validCard(card))throw new Error('收藏内容不完整，请重新开始旅程');
+ return {moods:[...card.moods],weight:card.weight,body:card.body,need:card.needId,note:card.note,palette:card.palette,layout:card.layout,quote:card.quote,seed:card.seed,...safeDecor(card)};
+}
