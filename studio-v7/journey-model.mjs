@@ -32,12 +32,12 @@ q('priority','最后带走一件事','如果只先照顾一个需要，你想选
 );return base;}
 export function scoreK10(answers){const values=K10_ITEMS.map((_,i)=>answers['k'+i]);if(values.some(v=>!Number.isInteger(v)||v<0||v>4))return null;return values.reduce((a,b)=>a+b,0);}
 export function validAnswer(step,value){return step.type==='multi'?Array.isArray(value)&&value.length<=3&&value.every(v=>step.options.some(o=>o.value===v)):step.options.some(o=>o.value===value);}
-export function journeyResult(a){const adult=a.age===1||a.age===2,score=adult?scoreK10(a):null;const priority=Number.isInteger(a.priority)?a.priority:0;
+export function journeyResult(a){const adult=a.age===1||a.age===2,score=adult?scoreK10(a):null;const priority=Number.isInteger(a.priority)?a.priority:-1;
 const needs=[{name:'先补回一点能量',action:'给自己留一段不处理事务的休息时间。若一直疲惫或睡不好，可寻求专业评估。',why:'你把休息与恢复放在了第一位。',title:'不用一直发光，\n也可以先休息。'},
 {name:'把下一步缩小',action:'列出眼前的一件事，把第一步缩小到几分钟内可开始。其余事情暂时另放。',why:'你更希望先理清事情的先后。',title:'先走一小步，\n不必一次走完。'},
 {name:'给自己留出边界',action:'选一件可以协商的事，说清自己现在能承担的部分。必要时请对方一起调整期待。',why:'你想先照顾关系中的边界。',title:'温柔待人，\n也别漏掉自己。'},
 {name:'让支持靠近一点',action:'如果愿意，给一个可信任的人发一句具体请求，例如“你能听我说十分钟吗？”',why:'你希望找到能支持自己的人。',title:'不必一个人，\n把所有重量接住。'},
-{name:'给表达留一个位置',action:'用十分钟画画、听音乐或记录一段感受。它不需要好看，也不必公开。',why:'你想给自由表达留一点时间。',title:'有些心情，\n值得被轻轻看见。'}][priority];
+{name:'给表达留一个位置',action:'用十分钟画画、听音乐或记录一段感受。它不需要好看，也不必公开。',why:'你想给自由表达留一点时间。',title:'有些心情，\n值得被轻轻看见。'}][priority]||{name:'留一点选择的空间',action:'你可以先看看哪一种照顾方式更愿意尝试，也可以暂时不决定。',why:'你暂时没有选定优先需要，这里不替你作决定。',title:'此刻，\n不必急着回答。'};
 const facts=[];if(a.sleep===2)facts.push('你报告过去一周常常没有休息够');if(a.break===2)facts.push('你报告很难获得不被打扰的休息');if(a.control===2)facts.push('你报告常常不知道从哪里开始');if(a.boundary===1)facts.push('你选择了即使疲惫也先答应请求');if(a.support===2)facts.push('你暂时想不到合适的支持对象');return{adult,k10:score,stress:Number.isInteger(a.stress)&&a.stress>=0&&a.stress<=10?a.stress:null,sources:Array.isArray(a.sources)?a.sources.filter(k=>Object.hasOwn(SOURCES,k)).map(k=>SOURCES[k]):[],scene:SCENES.some(s=>s[0]===a.scene)?a.scene:'sea',need:needs,facts,affected:a.impact===2};}
 export function resultNarrative(a){const r=journeyResult(a),values=K10_ITEMS.map((_,i)=>a['k'+i]),answered=values.filter(v=>Number.isInteger(v)&&v>=0&&v<=4),frequent=answered.filter(v=>v>=3).length,absent=answered.filter(v=>v===0).length;
 const prominent=values.map((v,i)=>({v,i})).filter(x=>Number.isInteger(x.v)&&x.v>0).sort((x,y)=>y.v-x.v||x.i-y.i).slice(0,3).map(x=>'「'+K10_ITEMS[x.i].replace('？','')+'」');
