@@ -1,22 +1,22 @@
 export function mountCatcher(host,{moods,onCatch,onDone,spriteMarkup,crystalMarkup,already=0}){
- let caught=Number.isFinite(already)?Math.max(0,Math.min(3,Math.floor(already))):0,stopped=false,raf,lastSpawn=0,x=.5,items=[],spawnCount=0;
+ let caught=Number.isFinite(already)?Math.max(0,Math.min(3,Math.floor(already))):0,stopped=false,raf,lastSpawn=0,x=.5,items=[],spawnCount=0,interacted=false;
  host.innerHTML=`<div class="sky-dust" aria-hidden="true"></div><div class="catch-meter" role="status">已接住 <b>${caught}</b> / 3</div><div class="catch-player" tabindex="0" role="group" aria-label="屿安的接住位置，用左右方向键移动">${spriteMarkup(1,'catch-avatar','屿安伸手接住晶体')}<div class="catch-bowl"></div></div><p class="catch-guide">左右拖动屿安，或直接点晶体</p>`;
  const player=host.querySelector('.catch-player'),meter=host.querySelector('.catch-meter b'),guide=host.querySelector('.catch-guide');
  const setX=v=>{x=Math.max(.12,Math.min(.88,v));player.style.left=`${x*100}%`;};
- const move=e=>{if(e.buttons||e.pointerType==='touch'){const r=host.getBoundingClientRect();setX((e.clientX-r.left)/r.width);}};
- const down=e=>{if(!e.target.closest('.falling-crystal')){host.setPointerCapture(e.pointerId);const r=host.getBoundingClientRect();setX((e.clientX-r.left)/r.width);}};
- const keys=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();setX(x+(e.key==='ArrowLeft'?-.08:.08));}};
+ const move=e=>{if(e.buttons||e.pointerType==='touch'){interacted=true;const r=host.getBoundingClientRect();setX((e.clientX-r.left)/r.width);}};
+ const down=e=>{if(!e.target.closest('.falling-crystal')){interacted=true;host.setPointerCapture(e.pointerId);const r=host.getBoundingClientRect();setX((e.clientX-r.left)/r.width);}};
+ const keys=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){interacted=true;e.preventDefault();setX(x+(e.key==='ArrowLeft'?-.08:.08));}};
  function capture(item){
   if(item.done||stopped)return;item.done=true;item.el.remove();caught++;meter.textContent=Math.min(3,caught);
   player.classList.remove('catch-pop');void player.offsetWidth;player.classList.add('catch-pop');onCatch(Math.min(3,caught));
   if(caught>=3){stopped=true;items.forEach(i=>i.el.remove());player.innerHTML=spriteMarkup(4,'catch-avatar','屿安开心地举手庆祝')+'<div class="catch-bowl"></div>';guide.textContent='接住了。先在这里歇一会儿。';host.classList.add('game-complete');onDone();}
  }
- function spawn(now){const m=moods[spawnCount++%moods.length],el=document.createElement('button');el.type='button';el.className='falling-crystal';el.setAttribute('aria-label',`接住${m.short}晶体`);el.innerHTML=crystalMarkup(m.color,m.shape)+`<span>${m.short}</span>`;const item={el,x:.16+Math.random()*.68,start:now,duration:6500+Math.random()*2000,done:false};el.onclick=()=>capture(item);host.append(el);items.push(item);}
+ function spawn(now){const m=moods[spawnCount++%moods.length],el=document.createElement('button');el.type='button';el.className='falling-crystal';el.setAttribute('aria-label',`接住${m.short}晶体`);el.innerHTML=crystalMarkup(m.color,m.shape)+`<span>${m.short}</span>`;const item={el,x:.16+Math.random()*.68,start:now,duration:6500+Math.random()*2000,done:false};el.onclick=()=>{interacted=true;capture(item);};host.append(el);items.push(item);}
  function frame(now){
   if(stopped)return;const r=host.getBoundingClientRect();
   if(!lastSpawn||now-lastSpawn>1450){spawn(now);lastSpawn=now;}
   for(const item of items){if(item.done)continue;const t=(now-item.start)/item.duration;item.el.style.left=`${item.x*100}%`;item.el.style.top=`${-40+t*(r.height+55)}px`;
-   if(t>.69&&t<.9&&Math.abs(item.x-x)<Math.max(.1,50/r.width))capture(item);
+   if(interacted&&t>.69&&t<.9&&Math.abs(item.x-x)<Math.max(.1,50/r.width))capture(item);
    else if(t>1){item.done=true;item.el.remove();}
   }
   items=items.filter(i=>!i.done);if(!stopped)raf=requestAnimationFrame(frame);
