@@ -3,8 +3,8 @@ import {createSoundscape} from './soundscape.mjs?rev=free2';
 import {loadAtlas} from './characters.mjs';
 import {mountPractice} from './practice.mjs';
 
-import {mountStarSea} from './star-sea.mjs?rev=play1';
-import {mountLightJourney} from './light-journey.mjs?rev=play1';
+import {mountStarSea} from './star-sea.mjs?rev=read1';
+import {mountLightJourney} from './light-journey.mjs?rev=read1';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sprite=p=>`<div class="yuan-sprite" style="--pose-x:${p%3*50}%;--pose-y:${Math.floor(p/3)*100}%" aria-label="屿安" role="img"></div>`;
